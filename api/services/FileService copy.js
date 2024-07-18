@@ -3,7 +3,9 @@ const mime = require('mime');
 const unzipper = require('unzipper');
 
 module.exports = class FileService {
-  constructor() {}
+  constructor() {
+
+  }
 
   list(path) {
     return new Promise((resolve, reject) => {
@@ -70,7 +72,7 @@ module.exports = class FileService {
         const stats = fs.statSync(path);
         const readStream = fs.createReadStream(path);
         res.setHeader('Content-Type', mime.getType(path));
-        res.setHeader('Content-Length', stats.size);
+        res.setHeader('Content-Type', stats.size);
         readStream.pipe(res);
       });
     });
@@ -83,33 +85,7 @@ module.exports = class FileService {
           reject(err);
           return;
         }
-        fs.writeFile(path, data, { encoding: 'utf8', flag: 'w+' }, (err) => {
-          if (err) {
-            reject(err);
-            return;
-          }
-          resolve();
-        });
-      });
-    });
-  }
-
-  exists(path) {
-    return new Promise((resolve) => {
-      fs.access(path, fs.constants.F_OK, (err) => {
-        resolve(!err);
-      });
-    });
-  }
-
-  delete(path) {
-    return new Promise((resolve, reject) => {
-      fs.access(path, (err) => {
-        if (err) {
-          reject(err);
-          return;
-        }
-        fs.unlink(path, (err) => {
+        fs.writeFile(path, data, { encoding: 'utf8', flag: 'w+' }, (err, data) => {
           if (err) {
             reject(err);
             return;
@@ -127,18 +103,10 @@ module.exports = class FileService {
           reject(err);
           return;
         }
-        const uploadPromises = files.map(item => {
-          return new Promise((resolve, reject) => {
-            item.mv(path + '/' + item.name, err => {
-              if (err) {
-                reject(err);
-              } else {
-                resolve();
-              }
-            });
-          });
+        files.forEach(item => {
+          item.mv(path + item.name);
         });
-        Promise.all(uploadPromises).then(resolve).catch(reject);
+        resolve();
       });
     });
   }
@@ -179,6 +147,24 @@ module.exports = class FileService {
     }
   };
 
+  delete(path) {
+    return new Promise((resolve, reject) => {
+      fs.access(path, (err) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        fs.unlink(path, (err) => {
+          if (err) {
+            reject(err);
+            return;
+          }
+          resolve();
+        });
+      });
+    });
+  }
+
   createDir(path, name) {
     return new Promise((resolve, reject) => {
       fs.access(path, (err) => {
@@ -217,4 +203,5 @@ module.exports = class FileService {
       });
     });
   }
+
 };

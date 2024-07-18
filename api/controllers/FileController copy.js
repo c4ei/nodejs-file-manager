@@ -46,29 +46,16 @@ module.exports = class FileController {
     }
   }
 
-  async upload(req, res) {
+  upload(req, res) {
     const { body, files } = req;
     const path = this.getPath(body.path);
     if (!files) {
       res.status(500).end();
-      return;
     }
-    
-    const fileKeys = Object.keys(files);
-    try {
-      for (const key of fileKeys) {
-        const filePath = `${path}/${files[key].name}`;
-        const exists = await this.fileService.exists(filePath);
-        if (exists) {
-          await this.fileService.delete(filePath);
-        }
-      }
-      await this.fileService.upload(path, fileKeys.map(key => files[key]));
-      res.end();
-    } catch (error) {
+    this.fileService.upload(path, Object.keys(files).map(key => files[key])).then(() => res.end()).catch(error => {
       console.error(error);
       res.status(500).end();
-    }
+    });
   }
 
   contentPut(req, res) {

@@ -8,8 +8,9 @@ const fileUpload = require('express-fileupload');
 const FileController = require('./api/controllers/FileController');
 
 const args = {
-  path: __dirname + '/files',
-  port: 5000
+  // path: __dirname + '/files',
+  path: '/home/dev/www/land.daigiroid/public/upload',
+  port: 8334
 };
 
 for (let i = 0; i < process.argv.length; i++) {
